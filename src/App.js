@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState } from "react";
 import ReactPlayer from "react-player";
 import "./App.css";
 
@@ -9,20 +9,15 @@ function App() {
   const [duration, setDuration] = useState(0);
   const [playing, setPlaying] = useState(false);
 
-  useEffect(() => {
-    // Met à jour le titre du document via l’API du navigateur
-    document.title = `PLAYER`;
-  }, [played, duration]);
   //process.env.PUBLIC_URL + "/hit1.ogg"
   return (
     <div className="App">
-      (-{format(duration * (1 - played))}) {format(duration * played)} /{" "}
-      {format(duration)}
+      <Duration seconds={duration * played} /> /{" "}{format(duration)}
       <br />
-      <Duration seconds={duration * played} />
       <ReactPlayer
         ref={player}
-        progressInterval={50}
+        height={0}
+        progressInterval={0}
         playing={playing}
         onBuffer={() => console.log("onBuffer")}
         onSeek={e => console.log("onSeek", e)}
@@ -30,14 +25,15 @@ function App() {
           //console.log('onProgress', e);
           if (!seeking) setPlayed(e.played);
         }}
+        onEnded={() => setPlaying(false)}
         onDuration={duration => {
           setDuration(duration);
         }}
-        url="https://filerun.gregoirejoncour.xyz/wl/?id=aUw8jvzQpPwkbGnggn0BHjhtN2niK0rW"
+        url="https://filerun.gregoirejoncour.xyz/wl/?id=PMJbNd9NTzEjmkxi1ZvXGYd8MXZEEYHk"
       />
-      <div style={{ width: "100%" }}>
+      <div>
         <input
-          style={{ width: "100%" }}
+          className="slider" id="myRange"
           type="range"
           min={0}
           max={1}
@@ -45,10 +41,12 @@ function App() {
           value={played}
           onMouseDown={() => setSeeking(true)}
           onChange={e => {
-            player.current.seekTo(parseFloat(e.target.value));
+            if (seeking)
+              player.current.seekTo(parseFloat(e.target.value));
           }}
           onMouseUp={() => setSeeking(false)}
         />
+        <progress max={1} value={played} className="progress" />
       </div>
       <button onClick={() => setPlaying(!playing)}>
         {playing ? "Pause" : "Play"}
@@ -70,11 +68,10 @@ function format(seconds) {
   const hh = date.getUTCHours();
   const mm = date.getUTCMinutes();
   const ss = pad(date.getUTCSeconds());
-  const ms = pad(date.getMilliseconds());
   if (hh) {
-    return `${hh}:${pad(mm)}:${ss}:${ms}`;
+    return `${hh}:${pad(mm)}:${ss}`;
   }
-  return `${mm}:${ss}:${ms}`;
+  return `${mm}:${ss}`;
 }
 
 function pad(string) {
