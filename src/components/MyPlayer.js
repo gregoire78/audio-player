@@ -1,12 +1,14 @@
 import React, { useRef, useState } from "react";
 import ReactPlayer from "react-player";
 import {
-  Button,
+  //Button,
   //Switch,
   Typography,
   Grid,
   Slider,
-  Box
+  Box,
+  IconButton,
+  makeStyles
 } from "@material-ui/core";
 import {
   VolumeDown,
@@ -15,8 +17,13 @@ import {
   PlayArrow,
   Loop
 } from "@material-ui/icons";
-
+const useStyles = makeStyles(theme => ({
+  margin: {
+    margin: theme.spacing(0.5)
+  }
+}));
 export default function MyPlayer({ url }) {
+  const classes = useStyles();
   const player = useRef();
   const myCanvas = useRef();
   const [played, setPlayed] = useState(0);
@@ -44,20 +51,22 @@ export default function MyPlayer({ url }) {
   return (
     <Grid container direction="row" justify="center" alignItems="center">
       <Grid item>
-        <Button onClick={() => setPlaying(!playing)}>
+        <IconButton
+          className={classes.margin}
+          size="small"
+          onClick={() => setPlaying(!playing)}
+        >
           {playing ? <Pause /> : <PlayArrow />}
-        </Button>
-      </Grid>
-      <Grid item>
-        {/*<Switch
-          checked={loop}
-          onChange={() => setLoop(!loop)}
-          value="checkedA"
-        />*/}
-        <Button onClick={() => setLoop(!loop)}>
+        </IconButton>
+        <IconButton
+          className={classes.margin}
+          size="small"
+          onClick={() => setLoop(!loop)}
+        >
           <Loop color={loop ? "inherit" : "disabled"} />
-        </Button>
+        </IconButton>
       </Grid>
+
       <Grid item xs>
         <Typography align="center">
           <Duration seconds={duration * played} /> / {format(duration)}
