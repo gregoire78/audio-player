@@ -110,6 +110,7 @@ export default function MyPlayer({ url }) {
           url={url}
           loop={loop}
           volume={volume}
+          playbackRate={1}
         />
         <Box height="25px">
           <progress max={1} value={played} className="progress" />
