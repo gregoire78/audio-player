@@ -1,12 +1,15 @@
-import React from "react";
+import React, { useState } from "react";
 import MyPlayer from "./components/MyPlayer";
 import { Container } from "@material-ui/core";
 import "./App.css";
 
 function App() {
+  const [url , setUrl] = useState("")
   //process.env.PUBLIC_URL + "/hit1.ogg"
+  fetchAudio().then(data=>setUrl(data));
   return (
     <Container>
+      <MyPlayer url={url} />
       <MyPlayer url="https://filerun.gregoirejoncour.xyz/wl/?id=PMJbNd9NTzEjmkxi1ZvXGYd8MXZEEYHk" />
       <MyPlayer url="https://filerun.gregoirejoncour.xyz/wl/?id=hktSHhIqd4igWJrtgFO5mpvhFKeBGXuw" />
       <MyPlayer url="https://filerun.gregoirejoncour.xyz/wl/?id=aUw8jvzQpPwkbGnggn0BHjhtN2niK0rW" />
@@ -18,5 +21,26 @@ function App() {
     </Container>
   );
 }
+async function fetchAudio() {
+  return fetch('', {
+    method: 'GET',
+    headers: {
+      'Authorization': ''
+    }
+  })
+  .then(response => response.blob())
+  .then(res => blobToDataURL(res))
+}
 
+function blobToDataURL (blob) {
+  return new Promise((resolve, reject) => {
+      let base64
+      var a = new FileReader()
+      a.readAsDataURL(blob)
+      a.onload = function (e) {
+        base64 = e.target.result
+        resolve(base64)
+      }
+  }) 
+}
 export default App;
