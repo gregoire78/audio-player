@@ -109,11 +109,11 @@ export default function MyPlayer({ url }) {
             setPlayed(e.played);
             loader();
           }}
-          onEnded={() => setPlaying(false)}
           onDuration={duration => {
             setDuration(duration);
           }}
           onBufferEnd={() => loader()}
+          onEnded={() => setPlaying(false)}
           onPause={() => setPlaying(false)}
           onPlay={() => setPlaying(true)}
           url={url}
