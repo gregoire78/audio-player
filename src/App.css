@@ -82,3 +82,9 @@
 ::-moz-progress-bar {
   background-color: #93c5ff;
 }
+
+
+.cover{
+  background-color: lightgrey;
+  width: 100%;
+}

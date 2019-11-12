@@ -3,7 +3,7 @@ import axios from 'axios';
 import qs from 'query-string';
 import MyPlayer from "./components/MyPlayer";
 import Auth from "./components/Auth";
-import { Container, Grid, Typography, List, ListItem, ListItemIcon, ListItemText } from "@material-ui/core";
+import { Container, Grid, Typography, List, ListItem, ListItemIcon, ListItemText, TextField } from "@material-ui/core";
 import FolderIcon from '@material-ui/icons/Folder';
 import Audiotrack from '@material-ui/icons/Audiotrack';
 import "./App.css";
@@ -61,7 +61,7 @@ axios.interceptors.response.use(
 function App() {
   const [url, setUrl] = useState("");
   const [metadata, setMetadata] = useState("");
-  const [thumbnail, setThumbnail] = useState("");
+  const [thumbnail, setThumbnail] = useState("https://via.placeholder.com/100");
   const [urlData, setUrlData] = useState("");
   const [files, setFiles] = useState();
   const [folder, setFolder] = useState("/ROOT/HOME/Music");
@@ -94,56 +94,69 @@ function App() {
   }, [urlData])
   return (
     <Container>
-      <Auth />
-      <form onSubmit={(e) => {
-        e.preventDefault();
-        browse(folder).then(data => setFiles(data))
-      }}>
-        <input type="text" value={folder} onChange={(e) => setFolder(e.target.value)} />
-        <button type="submit">fetch</button>
-      </form>
-
-      {metadata && metadata.data.fieldsets[0] && metadata.data.fieldsets[0].fields[1] && <div>{metadata.data.fieldsets[0].fields[1].values}</div>}
-      <div><img src={thumbnail} alt="" height="100" /></div>
-      <MyPlayer url={url} />
-      {files && <Grid container spacing={2}>
+      <Grid container spacing={2}>
         <Grid item xs={12}>
-          <Typography variant="h6">
-            List
-          </Typography>
-          <List dense>
-            <ListItem button onClick={() => { setFolder(files.meta.parentPath); browse(files.meta.parentPath).then(data => setFiles(data)) }}>
-              <ListItemIcon>
-                <FolderIcon />
-              </ListItemIcon>
-              <ListItemText
-                primary={files.meta.parentPath}
-              />
-            </ListItem>
-            {files.files.map((file, i) => {
-              if (!file.is_dir) {
-                return <ListItem key={i} button onClick={() => setUrlData(files.meta.path + "/" + file.filename)}>
-                  <ListItemIcon>
-                    <Audiotrack />
-                  </ListItemIcon>
-                  <ListItemText
-                    primary={file.filename}
-                  />
-                </ListItem>
-              } else {
-                return <ListItem key={i} button onClick={(e) => { e.preventDefault(); setFolder(files.meta.path + "/" + file.filename); browse(files.meta.path + "/" + file.filename).then(data => setFiles(data)) }}>
-                  <ListItemIcon>
-                    <FolderIcon />
-                  </ListItemIcon>
-                  <ListItemText
-                    primary={file.filename}
-                  />
-                </ListItem>
-              }
-            })}
-          </List>
+          <Auth />
         </Grid>
-      </Grid>}
+        <Grid item xs={12}>
+          <form onSubmit={(e) => {
+            e.preventDefault();
+            browse(folder).then(data => setFiles(data))
+          }} noValidate autoComplete="off">
+            <TextField
+              id="standard-full-width"
+              label="path"
+              margin="normal"
+              fullWidth
+              value={folder} onChange={(e) => setFolder(e.target.value)}
+            />
+          </form>
+        </Grid>
+        <Grid item xs={1}>
+          <img src={thumbnail} alt="test" className="cover" />
+        </Grid>
+        <Grid item xs={11}>
+          <MyPlayer url={url} />
+          {metadata && metadata.data.fieldsets[0] && metadata.data.fieldsets[0].fields[1] && <Typography variant="body1">{metadata.data.fieldsets[0].fields[1].values}</Typography>}
+        </Grid>
+        {files &&
+          <Grid item xs={12}>
+            <Typography variant="h6">
+              List
+            </Typography>
+            <List dense>
+              <ListItem button onClick={() => { setFolder(files.meta.parentPath); browse(files.meta.parentPath).then(data => setFiles(data)) }}>
+                <ListItemIcon>
+                  <FolderIcon />
+                </ListItemIcon>
+                <ListItemText
+                  primary={files.meta.parentPath}
+                />
+              </ListItem>
+              {files.files.map((file, i) => {
+                if (!file.is_dir) {
+                  return <ListItem key={i} button onClick={() => setUrlData(files.meta.path + "/" + file.filename)}>
+                    <ListItemIcon>
+                      <Audiotrack />
+                    </ListItemIcon>
+                    <ListItemText
+                      primary={file.filename}
+                    />
+                  </ListItem>
+                } else {
+                  return <ListItem key={i} button onClick={(e) => { e.preventDefault(); setFolder(files.meta.path + "/" + file.filename); browse(files.meta.path + "/" + file.filename).then(data => setFiles(data)) }}>
+                    <ListItemIcon>
+                      <FolderIcon />
+                    </ListItemIcon>
+                    <ListItemText
+                      primary={file.filename}
+                    />
+                  </ListItem>
+                }
+              })}
+            </List>
+          </Grid>}
+      </Grid>
     </Container>
   );
 }
