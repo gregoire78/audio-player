@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import ReactPlayer from "react-player";
 import {
   //Button,
@@ -47,6 +47,13 @@ export default function MyPlayer({ url }) {
       context.rect(startX, 0, width, myCanvas.current.height);
     }
   };
+
+  useEffect(() => {
+    if (url === "") {
+      setDuration(0);
+      setPlayed(0);
+    }
+  }, [url])
 
   return (
     <Grid container direction="row" justify="center" alignItems="center">

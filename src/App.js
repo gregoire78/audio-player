@@ -65,10 +65,17 @@ function App() {
   const [urlData, setUrlData] = useState("");
   const [files, setFiles] = useState();
   const [folder, setFolder] = useState("/ROOT/HOME/Music");
+  const [loader, setLoader] = useState();
   //process.env.PUBLIC_URL + "/hit1.ogg"
   const fetchAudio = async (path) => {
     const blob = (await axios.get(`${process.env.REACT_APP_API}/api.php/files/download?path=${encodeURIComponent(path)}`, {
-      responseType: 'blob'
+      responseType: 'blob',
+      onDownloadProgress: (progressEvent) => {
+        const totalLength = progressEvent.lengthComputable ? progressEvent.total : progressEvent.target.getResponseHeader('content-length') || progressEvent.target.getResponseHeader('x-decompressed-content-length');
+        if (totalLength !== null) {
+          setLoader(Math.round((progressEvent.loaded * 100) / totalLength));
+        }
+      }
     })).data;
     return URL.createObjectURL(blob);
   }
@@ -87,9 +94,13 @@ function App() {
 
   useEffect(() => {
     if (urlData) {
-      fetchAudio(urlData).then(data => setUrl(data));
-      getMetadata(urlData).then(data => setMetadata(data));
+      setUrl("");
+      fetchAudio(urlData).then(data => {
+        setUrl(data);
+        setLoader();
+      });
       getThumbnail(urlData).then(data => setThumbnail(data));
+      getMetadata(urlData).then(data => setMetadata(data));
     }
   }, [urlData])
   return (
@@ -117,7 +128,7 @@ function App() {
         </Grid>
         <Grid item xs={11}>
           <MyPlayer url={url} />
-          {metadata && metadata.data.fieldsets[0] && metadata.data.fieldsets[0].fields[1] && <Typography variant="body1">{metadata.data.fieldsets[0].fields[1].values}</Typography>}
+          <Typography variant="body1">{metadata && metadata.data.fieldsets[0] && metadata.data.fieldsets[0].fields[1] && metadata.data.fieldsets[0].fields[1].values}{loader && ' - ' + loader + '%'}</Typography>
         </Grid>
         {files &&
           <Grid item xs={12}>
