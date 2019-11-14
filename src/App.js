@@ -113,6 +113,21 @@ function App() {
         <Grid item xs={12}>
           <Auth />
         </Grid>
+        <Grid
+          container
+          item
+          xs={12}
+          spacing={2}
+          justify="center"
+          alignItems="center">
+          <Grid item xs={1}>
+            <img src={thumbnail} alt="test" className="cover" />
+          </Grid>
+          <Grid item xs={11} >
+            <Typography variant="body1">{(metadata && metadata.data.fieldsets[0] && metadata.data.fieldsets[0].fields[1] && metadata.data.fieldsets[0].fields[1].values) || '\xA0'}{loader && ' (' + loader + '%)'}</Typography>
+            <MyPlayer url={url} />
+          </Grid>
+        </Grid>
         <Grid item xs={12}>
           <form onSubmit={(e) => {
             e.preventDefault();
@@ -126,15 +141,6 @@ function App() {
               value={folder} onChange={(e) => setFolder(e.target.value)}
             />
           </form>
-        </Grid>
-        <Grid container item xs={12} spacing={2}>
-          <Grid item xs={1}>
-            <img src={thumbnail} alt="test" className="cover" />
-          </Grid>
-          <Grid item xs={11} >
-            <Typography variant="body1">{(metadata && metadata.data.fieldsets[0] && metadata.data.fieldsets[0].fields[1] && metadata.data.fieldsets[0].fields[1].values) || '\xA0'}{loader && ' (' + loader + '%)'}</Typography>
-            <MyPlayer url={url} />
-          </Grid>
         </Grid>
         {files &&
           <Grid item xs={12}>
