@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from "react";
 import axios from 'axios';
 import qs from 'query-string';
@@ -61,7 +62,7 @@ axios.interceptors.response.use(
 function App() {
   const [url, setUrl] = useState("");
   const [metadata, setMetadata] = useState("");
-  const [thumbnail, setThumbnail] = useState("https://via.placeholder.com/100");
+  const [thumbnail, setThumbnail] = useState("https://via.placeholder.com/87");
   const [urlData, setUrlData] = useState("");
   const [files, setFiles] = useState();
   const [folder, setFolder] = useState("/ROOT/HOME/Music");
@@ -103,6 +104,9 @@ function App() {
       getMetadata(urlData).then(data => setMetadata(data));
     }
   }, [urlData])
+  useEffect(() => {
+    browse(folder).then(data => setFiles(data))
+  }, [])
   return (
     <Container>
       <Grid container spacing={2}>
@@ -123,18 +127,17 @@ function App() {
             />
           </form>
         </Grid>
-        <Grid item xs={1}>
-          <img src={thumbnail} alt="test" className="cover" />
-        </Grid>
-        <Grid item xs={11}>
-          <MyPlayer url={url} />
-          <Typography variant="body1">{metadata && metadata.data.fieldsets[0] && metadata.data.fieldsets[0].fields[1] && metadata.data.fieldsets[0].fields[1].values}{loader && ' - ' + loader + '%'}</Typography>
+        <Grid container item xs={12} spacing={2}>
+          <Grid item xs={1}>
+            <img src={thumbnail} alt="test" className="cover" />
+          </Grid>
+          <Grid item xs={11} >
+            <Typography variant="body1">{(metadata && metadata.data.fieldsets[0] && metadata.data.fieldsets[0].fields[1] && metadata.data.fieldsets[0].fields[1].values) || '\xA0'}{loader && ' (' + loader + '%)'}</Typography>
+            <MyPlayer url={url} />
+          </Grid>
         </Grid>
         {files &&
           <Grid item xs={12}>
-            <Typography variant="h6">
-              List
-            </Typography>
             <List dense>
               <ListItem button onClick={() => { setFolder(files.meta.parentPath); browse(files.meta.parentPath).then(data => setFiles(data)) }}>
                 <ListItemIcon>

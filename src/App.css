@@ -76,15 +76,20 @@
 ::-webkit-progress-value {
   background-color: #93c5ff;
 }
+
 ::-webkit-progress-bar {
   background-color: lightgray;
 }
+
 ::-moz-progress-bar {
   background-color: #93c5ff;
 }
 
 
-.cover{
+.cover {
   background-color: lightgrey;
+  /*border-radius: 0 4px 4px 0;*/
+  height: 100%;
   width: 100%;
+  display: block;
 }
