@@ -7,6 +7,7 @@ import Auth from "./components/Auth";
 import { Container, Grid, Typography, List, ListItem, ListItemIcon, ListItemText, TextField } from "@material-ui/core";
 import FolderIcon from '@material-ui/icons/Folder';
 import Audiotrack from '@material-ui/icons/Audiotrack';
+import InsertDriveFile from '@material-ui/icons/InsertDriveFile';
 import "./App.css";
 
 // Add a request interceptor
@@ -93,6 +94,19 @@ function App() {
     return (await axios.get(`${process.env.REACT_APP_API}/api.php/files/browse?path=${encodeURIComponent(path)}`)).data.data;
   }
 
+  const fetchFolder = async (folder) => {
+    const data = await browse(folder);
+    setFolder(folder);
+    Promise.all(data.files.map(async (file) => {
+      if (!file.is_dir) {
+        const metadata = await getMetadata(data.meta.path + "/" + file.filename);
+        if (metadata.success === true) {
+          return Object.assign(file, { metadata })
+        } else { return false }
+      } else { return file }
+    })).then((files) => files.filter(d => d !== false)).then((files) => Object.assign(data, { files })).then((files) => setFiles(data))
+  }
+
   useEffect(() => {
     if (urlData) {
       setUrl("");
@@ -104,8 +118,9 @@ function App() {
       getMetadata(urlData).then(data => setMetadata(data));
     }
   }, [urlData])
+
   useEffect(() => {
-    browse(folder).then(data => setFiles(data))
+    fetchFolder(folder)
   }, [])
   return (
     <Container>
@@ -131,7 +146,8 @@ function App() {
         <Grid item xs={12}>
           <form onSubmit={(e) => {
             e.preventDefault();
-            browse(folder).then(data => setFiles(data))
+            fetchFolder(folder);
+            //browse(folder).then(data => setFiles(data))
           }} noValidate autoComplete="off">
             <TextField
               id="standard-full-width"
@@ -145,7 +161,7 @@ function App() {
         {files &&
           <Grid item xs={12}>
             <List dense>
-              <ListItem button onClick={() => { setFolder(files.meta.parentPath); browse(files.meta.parentPath).then(data => setFiles(data)) }}>
+              <ListItem button onClick={() => fetchFolder(files.meta.parentPath)}>
                 <ListItemIcon>
                   <FolderIcon />
                 </ListItemIcon>
@@ -155,16 +171,17 @@ function App() {
               </ListItem>
               {files.files.map((file, i) => {
                 if (!file.is_dir) {
-                  return <ListItem key={i} button onClick={() => setUrlData(files.meta.path + "/" + file.filename)}>
+                  const isAudio = file.metadata.data.fieldsets && file.metadata.data.fieldsets[0].id === "5";
+                  return <ListItem key={i} button onClick={() => setUrlData(files.meta.path + "/" + file.filename)} disabled={!isAudio}>
                     <ListItemIcon>
-                      <Audiotrack />
+                      {isAudio ? <Audiotrack /> : <InsertDriveFile />}
                     </ListItemIcon>
                     <ListItemText
                       primary={file.filename}
                     />
                   </ListItem>
                 } else {
-                  return <ListItem key={i} button onClick={(e) => { e.preventDefault(); setFolder(files.meta.path + "/" + file.filename); browse(files.meta.path + "/" + file.filename).then(data => setFiles(data)) }}>
+                  return <ListItem key={i} button onClick={() => fetchFolder(files.meta.path + "/" + file.filename)}>
                     <ListItemIcon>
                       <FolderIcon />
                     </ListItemIcon>
