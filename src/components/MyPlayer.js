@@ -32,6 +32,7 @@ export default function MyPlayer({ url }) {
   const [loop, setLoop] = useState(false);
   const [volume, setVolume] = useState(0.5);
 
+  // eslint-disable-next-line no-unused-vars
   const loader = () => {
     const context = myCanvas.current.getContext("2d");
     const videoElem = player.current.getInternalPlayer();
@@ -114,12 +115,12 @@ export default function MyPlayer({ url }) {
           playing={playing}
           onProgress={e => {
             setPlayed(e.played);
-            loader();
+            //loader();
           }}
           onDuration={duration => {
             setDuration(duration);
           }}
-          onBufferEnd={() => loader()}
+          //onBufferEnd={() => loader()}
           onEnded={() => setPlaying(false)}
           onPause={() => setPlaying(false)}
           onPlay={() => setPlaying(true)}
