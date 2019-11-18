@@ -31,7 +31,7 @@ axios.interceptors.response.use(
   async error => {
     const originalRequest = error.config;
     const tokens = JSON.parse(localStorage.getItem('tokens'));
-    if (error.response.status === 401 && !originalRequest._retry) {
+    if (!axios.isCancel(error) && error.response.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
       const res = await (await axios.post(`${process.env.REACT_APP_API}/oauth2/token/`,
         qs.stringify({
@@ -59,7 +59,7 @@ axios.interceptors.response.use(
   }
 );
 
-
+let cancel; const CancelToken = axios.CancelToken;
 function App() {
   const [url, setUrl] = useState("");
   const [metadata, setMetadata] = useState("");
@@ -70,16 +70,23 @@ function App() {
   const [loader, setLoader] = useState();
   //process.env.PUBLIC_URL + "/hit1.ogg"
   const fetchAudio = async (path) => {
-    const blob = (await axios.get(`${process.env.REACT_APP_API}/api.php/files/download?path=${encodeURIComponent(path)}`, {
-      responseType: 'blob',
-      onDownloadProgress: (progressEvent) => {
-        const totalLength = progressEvent.lengthComputable ? progressEvent.total : progressEvent.target.getResponseHeader('content-length') || progressEvent.target.getResponseHeader('x-decompressed-content-length');
-        if (totalLength !== null) {
-          setLoader(Math.round((progressEvent.loaded * 100) / totalLength));
+    try { await cancel(); } catch (e) {}
+    try {
+      const blob = (await axios.get(`${process.env.REACT_APP_API}/api.php/files/download?path=${encodeURIComponent(path)}`, {
+        responseType: 'blob',
+        cancelToken: new CancelToken(function executor(c) {
+          // An executor function receives a cancel function as a parameter
+          cancel = c;
+        }),
+        onDownloadProgress: (progressEvent) => {
+          const totalLength = progressEvent.lengthComputable ? progressEvent.total : progressEvent.target.getResponseHeader('content-length') || progressEvent.target.getResponseHeader('x-decompressed-content-length');
+          if (totalLength !== null) {
+            setLoader(Math.round((progressEvent.loaded * 100) / totalLength));
+          }
         }
-      }
-    })).data;
-    return URL.createObjectURL(blob);
+      })).data;
+      return URL.createObjectURL(blob);
+    } catch (e) {}
   }
   const getMetadata = async (path) => {
     return (await axios.get(`${process.env.REACT_APP_API}/api.php/files/metadata?path=${encodeURIComponent(path)}`)).data;

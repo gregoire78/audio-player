@@ -22,7 +22,7 @@ const useStyles = makeStyles(theme => ({
     margin: theme.spacing(0.5)
   }
 }));
-export default function MyPlayer({ url }) {
+export default function MyPlayer({ url, showBuffer = false }) {
   const classes = useStyles();
   const player = useRef();
   const myCanvas = useRef();
@@ -32,20 +32,21 @@ export default function MyPlayer({ url }) {
   const [loop, setLoop] = useState(false);
   const [volume, setVolume] = useState(0.5);
 
-  // eslint-disable-next-line no-unused-vars
   const loader = () => {
-    const context = myCanvas.current.getContext("2d");
-    const videoElem = player.current.getInternalPlayer();
-    const inc = myCanvas.current.width / duration;
-    context.fillStyle = "lightgray";
-    context.fillRect(0, 0, myCanvas.current.width, myCanvas.current.height);
-    context.fillStyle = "gray";
-    for (let i = 0; i < videoElem.buffered.length; i++) {
-      const startX = videoElem.buffered.start(i) * inc;
-      const endX = videoElem.buffered.end(i) * inc;
-      const width = endX - startX;
-      context.fillRect(startX, 0, width, myCanvas.current.height);
-      context.rect(startX, 0, width, myCanvas.current.height);
+    if (showBuffer) {
+      const context = myCanvas.current.getContext("2d");
+      const videoElem = player.current.getInternalPlayer();
+      const inc = myCanvas.current.width / duration;
+      context.fillStyle = "lightgray";
+      context.fillRect(0, 0, myCanvas.current.width, myCanvas.current.height);
+      context.fillStyle = "gray";
+      for (let i = 0; i < videoElem.buffered.length; i++) {
+        const startX = videoElem.buffered.start(i) * inc;
+        const endX = videoElem.buffered.end(i) * inc;
+        const width = endX - startX;
+        context.fillRect(startX, 0, width, myCanvas.current.height);
+        context.rect(startX, 0, width, myCanvas.current.height);
+      }
     }
   };
 
@@ -115,12 +116,12 @@ export default function MyPlayer({ url }) {
           playing={playing}
           onProgress={e => {
             setPlayed(e.played);
-            //loader();
+            loader();
           }}
           onDuration={duration => {
             setDuration(duration);
           }}
-          //onBufferEnd={() => loader()}
+          onBufferEnd={() => loader() }
           onEnded={() => setPlaying(false)}
           onPause={() => setPlaying(false)}
           onPlay={() => setPlaying(true)}
